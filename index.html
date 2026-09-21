@@ -1,0 +1,931 @@
+TEST<!doctype html>
+<html lang="nb">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#E8590C">
+<meta name="mobile-web-app-capable" content="yes">
+<title>Søkskart</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&display=swap">
+<style>
+:root{
+  --ground:#E9EEE8;
+  --panel:#FFFFFF;
+  --panel-2:#F2F5F1;
+  --ink:#142019;
+  --ink-2:#4B5A51;
+  --line:#D3DCD5;
+  --blaze:#E8590C;
+  --blaze-ink:#FFFFFF;
+  --good:#17803F;
+  --mid:#B07800;
+  --poor:#C2332B;
+  --me:#1463C9;
+  --warm-txt:#C21F36;
+  --cold-txt:#1F6FB2;
+  --shadow:0 -8px 24px rgba(16,28,21,.12);
+  --display:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;
+  --body:"Barlow",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ground:#0C120F; --panel:#151D18; --panel-2:#1D2721; --ink:#E4EBE6; --ink-2:#9DAEA3; --line:#2A372F;
+    --blaze:#FF7A2F; --blaze-ink:#1A0A00; --good:#3DC476; --mid:#E6B340; --poor:#FF6E61; --me:#5AA2FF;
+    --warm-txt:#FF6B6B; --cold-txt:#6DB6FF;
+    --shadow:0 -8px 24px rgba(0,0,0,.45); color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#0C120F; --panel:#151D18; --panel-2:#1D2721; --ink:#E4EBE6; --ink-2:#9DAEA3; --line:#2A372F;
+  --blaze:#FF7A2F; --blaze-ink:#1A0A00; --good:#3DC476; --mid:#E6B340; --poor:#FF6E61; --me:#5AA2FF;
+  --warm-txt:#FF6B6B; --cold-txt:#6DB6FF;
+  --shadow:0 -8px 24px rgba(0,0,0,.45); color-scheme:dark;
+}
+[hidden]{display:none!important}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;display:flex;flex-direction:column;background:var(--ground);color:var(--ink);font:16px/1.4 var(--body);overflow:hidden;-webkit-tap-highlight-color:transparent}
+button{font:inherit;color:inherit;cursor:pointer}
+button:disabled{cursor:default}
+button:focus-visible{outline:3px solid var(--me);outline-offset:2px}
+
+/* Toppstripe */
+.topbar{flex:none;display:flex;align-items:center;gap:8px;padding:calc(env(safe-area-inset-top,0px) + 10px) 16px 10px;background:var(--panel);border-bottom:1px solid var(--line);z-index:5}
+.chip{flex:1 1 auto;min-width:0;display:flex;align-items:center;gap:8px;height:36px;padding:0 12px;border-radius:999px;background:var(--panel-2);border:1px solid var(--line);font:600 16px/1 var(--display);letter-spacing:.02em;font-variant-numeric:tabular-nums}
+.chip .dot{flex:none;width:10px;height:10px;border-radius:50%;background:var(--ink-2)}
+.chip[data-q="good"] .dot{background:var(--good);box-shadow:0 0 0 3px color-mix(in srgb,var(--good) 25%,transparent)}
+.chip[data-q="mid"] .dot{background:var(--mid)}
+.chip[data-q="poor"] .dot,.chip[data-q="error"] .dot{background:var(--poor)}
+.chip[data-q="demo"] .dot{background:var(--blaze)}
+.tool[aria-pressed="true"]{background:var(--ink);color:var(--panel);border-color:var(--ink)}
+.chip .txt{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tbtn{flex:none;height:36px;padding:0 12px;border-radius:10px;border:1px solid var(--line);background:var(--panel-2);font:600 15px/1 var(--display);letter-spacing:.05em;text-transform:uppercase}
+.tbtn[aria-pressed="true"]{background:var(--ink);color:var(--panel);border-color:var(--ink)}
+
+/* Kart */
+#map{flex:1 1 auto;min-height:120px;background:var(--panel-2)}
+.leaflet-container{font:13px/1.3 var(--body);background:var(--panel-2)}
+.leaflet-bar a,.leaflet-bar a:hover{background:var(--panel);color:var(--ink);border-bottom-color:var(--line)}
+.leaflet-bar{border-color:var(--line)!important}
+.leaflet-control-attribution{background:var(--panel)!important;background:color-mix(in srgb,var(--panel) 82%,transparent)!important;color:var(--ink-2)!important}
+.leaflet-control-attribution a{color:var(--ink-2)!important}
+.leaflet-control-scale-line{background:color-mix(in srgb,var(--panel) 85%,transparent);border-color:var(--ink);color:var(--ink);font:600 12px var(--display);letter-spacing:.03em}
+.me-wrap,.hs-wrap{background:none;border:0}
+.me{position:relative;width:28px;height:28px}
+.me-dot{position:absolute;left:7px;top:7px;width:14px;height:14px;border-radius:50%;background:var(--me);border:3px solid #fff;box-shadow:0 0 0 1px rgba(0,0,0,.3)}
+.me-head{position:absolute;inset:0;transition:transform .2s ease-out}
+.me-head::before{content:"";position:absolute;left:8px;top:-7px;border-left:6px solid transparent;border-right:6px solid transparent;border-bottom:11px solid var(--me)}
+.acc-circle{stroke:var(--me);stroke-width:1.5;fill:var(--me);fill-opacity:.12}
+.aim-line{stroke:var(--blaze);stroke-width:3;stroke-dasharray:6 7;fill:none}
+.hs{display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:var(--blaze);color:#fff;border:2.5px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.4);font:700 15px/1 var(--display)}
+.hs.manual{border-style:dashed}
+.hs.found{background:#7D8A82}
+.hs.target{box-shadow:0 0 0 5px color-mix(in srgb,var(--blaze) 40%,transparent),0 1px 4px rgba(0,0,0,.4)}
+
+/* Bunnpanel */
+.sheet{flex:none;display:flex;flex-direction:column;background:var(--panel);border-top:1px solid var(--line);box-shadow:var(--shadow);padding:12px 16px calc(env(safe-area-inset-bottom,0px) + 12px);z-index:5}
+.main-view{display:flex;flex-direction:column;gap:12px}
+.actions{display:grid;grid-template-columns:1fr auto;gap:10px}
+.btn{height:56px;border-radius:14px;border:1px solid var(--line);background:var(--panel-2);font:700 19px/1 var(--display);letter-spacing:.04em;text-transform:uppercase;padding:0 16px;display:inline-flex;align-items:center;justify-content:center;gap:8px}
+.btn-primary{position:relative;overflow:hidden;background:var(--blaze);color:var(--blaze-ink);border-color:transparent}
+.btn-primary .prog{position:absolute;left:0;top:0;bottom:0;width:calc(var(--p,0) * 100%);background:rgba(0,0,0,.2);transition:width .2s linear}
+.btn-primary .lbl{position:relative}
+.count{display:inline-grid;place-items:center;min-width:26px;height:26px;padding:0 7px;border-radius:999px;background:var(--ink);color:var(--panel);font-size:15px;font-variant-numeric:tabular-nums}
+.hint{margin:0;font-size:14px;color:var(--ink-2)}
+.list{display:flex;flex-direction:column;gap:10px}
+.list ul{list-style:none;margin:0;padding:0;max-height:34vh;overflow:auto;border:1px solid var(--line);border-radius:12px}
+.row{display:grid;grid-template-columns:auto minmax(0,1fr) auto auto;align-items:center;gap:10px;padding:10px 12px;border-bottom:1px solid var(--line)}
+.row:last-child{border-bottom:0}
+.badge{display:grid;place-items:center;width:28px;height:28px;border-radius:50%;background:var(--blaze);color:#fff;font:700 14px/1 var(--display)}
+.row.found .badge{background:#7D8A82}
+.row-text{display:flex;flex-direction:column;min-width:0}
+.row-name{align-self:flex-start;max-width:100%;background:none;border:0;padding:0;text-align:left;font:600 16px/1.25 var(--body);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row-meta{font:500 14px/1.3 var(--display);letter-spacing:.02em;color:var(--ink-2);font-variant-numeric:tabular-nums}
+.row .find{height:36px;padding:0 14px;border-radius:10px;border:0;background:var(--ink);color:var(--panel);font:700 15px/1 var(--display);letter-spacing:.05em;text-transform:uppercase}
+.row .del{display:grid;place-items:center;width:36px;height:36px;border-radius:10px;border:1px solid var(--line);background:none;color:var(--ink-2)}
+.tools{display:flex;flex-wrap:wrap;gap:8px}
+.tool{height:36px;padding:0 12px;border-radius:10px;border:1px solid var(--line);background:var(--panel-2);font:600 14px/1 var(--display);letter-spacing:.05em;text-transform:uppercase}
+.tool.danger{color:var(--poor)}
+
+/* Finn-modus: varm/kald */
+.finder{--heat:var(--line);--heat-ink:var(--ink);--k:0;display:flex;flex-direction:column;gap:12px;margin:-12px -16px 0;padding:12px 16px 0;border-top:6px solid var(--heat);transition:border-color .3s}
+.f-head{display:flex;align-items:center;gap:8px}
+.f-name{flex:1 1 auto;min-width:0;font:700 21px/1.1 var(--display);letter-spacing:.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pill{flex:none;height:34px;padding:0 12px;border-radius:999px;border:1px solid var(--line);background:var(--panel-2);font:600 14px/1 var(--display);letter-spacing:.05em;text-transform:uppercase}
+.pill[aria-pressed="true"]{background:var(--ink);color:var(--panel);border-color:var(--ink)}
+.x{flex:none;display:grid;place-items:center;width:34px;height:34px;border-radius:50%;border:1px solid var(--line);background:none;color:var(--ink-2)}
+.f-body{display:grid;grid-template-columns:auto minmax(0,1fr);gap:16px;align-items:center}
+.dial{position:relative;width:136px;height:136px;border-radius:50%;background:var(--panel-2);border:2px solid var(--line)}
+.dial::after{content:"";position:absolute;left:50%;top:6px;width:4px;height:10px;margin-left:-2px;border-radius:2px;background:var(--ink-2)}
+.arrow{position:absolute;inset:0;transition:transform .25s ease-out}
+.arrow svg{display:block;width:100%;height:100%}
+.arrow path{fill:var(--heat);stroke:var(--panel);stroke-width:3;stroke-linejoin:round;transition:fill .3s}
+.here{position:absolute;inset:12px;border-radius:50%;background:var(--heat);color:var(--heat-ink);display:grid;place-items:center;padding:8px;font:700 21px/1.05 var(--display);letter-spacing:.03em;text-transform:uppercase;text-align:center}
+.f-read{display:flex;flex-direction:column;gap:6px;min-width:0}
+.f-dist{font:700 clamp(46px,14vw,66px)/.9 var(--display);letter-spacing:-.01em;font-variant-numeric:tabular-nums;white-space:nowrap}
+.f-heat{align-self:flex-start;padding:5px 12px;border-radius:999px;background:var(--heat);color:var(--heat-ink);font:700 18px/1 var(--display);letter-spacing:.07em;text-transform:uppercase;transition:background .3s}
+.f-trend{font:600 17px/1.2 var(--display);letter-spacing:.03em;color:var(--ink-2)}
+.f-trend[data-t="warmer"]{color:var(--warm-txt)}
+.f-trend[data-t="colder"]{color:var(--cold-txt)}
+.f-bearing{font:500 15px/1.2 var(--display);letter-spacing:.03em;color:var(--ink-2);font-variant-numeric:tabular-nums}
+.heat-scale{display:flex;flex-direction:column;gap:6px}
+/* Fargebåndene følger trinnene: 50 m, 20 m, 8 m, 3 m og 1 m på log-skala */
+.heatbar{position:relative;height:12px;border-radius:999px;background:linear-gradient(90deg,#2F5FA8 0 13%,#3A9BC9 13% 30%,#9BBF3B 30% 48%,#F5A300 48% 66%,#F25C05 66% 87%,#D7263D 87%)}
+.heatbar i{position:absolute;top:50%;left:calc(var(--k) * 100%);width:22px;height:22px;margin:-11px 0 0 -11px;border-radius:50%;background:var(--panel);border:3px solid var(--ink);transition:left .3s}
+.heat-labels{display:flex;justify-content:space-between;font:600 12px/1 var(--display);letter-spacing:.07em;text-transform:uppercase;color:var(--ink-2)}
+.f-hint{margin:0;font-size:14px;color:var(--ink-2)}
+.f-actions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.f-actions .btn{height:48px;font-size:17px;padding:0 8px}
+.f-actions .btn[aria-pressed="true"]{background:var(--ink);color:var(--panel);border-color:var(--ink)}
+
+.toast{position:fixed;left:16px;right:16px;top:calc(env(safe-area-inset-top,0px) + 66px);margin:0 auto;max-width:440px;padding:12px 16px;border-radius:12px;background:var(--ink);color:var(--panel);font-weight:500;box-shadow:0 8px 24px rgba(0,0,0,.25);opacity:0;transform:translateY(-6px);transition:opacity .2s,transform .2s;pointer-events:none;z-index:1000}
+.toast.show{opacity:1;transform:none}
+@media (max-width:360px){
+  .dial{width:112px;height:112px}
+  .here{font-size:18px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="chip" id="gpsChip" data-q="none" role="status" aria-live="polite"><span class="dot"></span><span class="txt" id="gpsText">Starter GPS …</span></div>
+  <button class="tbtn" id="btnLayer" type="button" title="Bytt kartlag">Topo</button>
+  <button class="tbtn" id="btnFollow" type="button" aria-pressed="true" title="Hold kartet på posisjonen din">Følg</button>
+</header>
+
+<div id="map" aria-label="Kart"></div>
+
+<section class="sheet" id="sheet">
+  <div class="main-view" id="mainView">
+    <div class="actions">
+      <button class="btn btn-primary" id="btnMark" type="button"><span class="prog"></span><span class="lbl" id="markLabel">Merk hotspot her</span></button>
+      <button class="btn" id="btnList" type="button" aria-expanded="false" aria-controls="listPanel">Liste <span class="count" id="count">0</span></button>
+    </div>
+    <p class="hint" id="hint">Gå til stedet og trykk «Merk hotspot her» – appen snittmåler i 5 sekunder. Du kan også holde fingeren på kartet for å sette et punkt.</p>
+    <div class="list" id="listPanel" hidden>
+      <ul id="list"></ul>
+      <div class="tools">
+        <button class="tool" id="btnExport" type="button">Last ned</button>
+        <button class="tool" id="btnImport" type="button">Importer</button>
+        <button class="tool" id="btnResetFound" type="button">Nullstill funnet</button>
+        <button class="tool" id="btnDemo" type="button" aria-pressed="false" title="Test uten GPS: trykk på kartet for å flytte deg">Demo</button>
+        <button class="tool danger" id="btnClear" type="button">Slett alle</button>
+        <input type="file" id="fileInput" accept=".geojson,.json,application/geo+json,application/json" hidden>
+      </div>
+    </div>
+  </div>
+
+  <div class="finder" id="finder" hidden>
+    <div class="f-head">
+      <div class="f-name" id="fName">–</div>
+      <button class="pill" id="btnNearest" type="button" aria-pressed="false" title="Følg alltid nærmeste hotspot som ikke er funnet">Nærmeste</button>
+      <button class="x" id="btnCloseFinder" type="button" aria-label="Lukk">
+        <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M2 2l10 10M12 2L2 12" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" fill="none"/></svg>
+      </button>
+    </div>
+    <div class="f-body">
+      <div class="dial" id="dial">
+        <div class="arrow" id="arrow">
+          <svg viewBox="0 0 120 120" aria-hidden="true"><path d="M60 12 L86 82 L60 68 L34 82 Z"/></svg>
+        </div>
+        <div class="here" id="here" hidden>Du er her</div>
+      </div>
+      <div class="f-read">
+        <div class="f-dist" id="fDist">–</div>
+        <div class="f-heat" id="fHeat">Venter</div>
+        <div class="f-trend" id="fTrend">&nbsp;</div>
+        <div class="f-bearing" id="fBearing">&nbsp;</div>
+      </div>
+    </div>
+    <div class="heat-scale" aria-hidden="true">
+      <div class="heatbar"><i></i></div>
+      <div class="heat-labels"><span>Iskald 100 m</span><span>Brennhett</span></div>
+    </div>
+    <p class="f-hint" id="fHint">&nbsp;</p>
+    <div class="f-actions">
+      <button class="btn" id="btnSound" type="button" aria-pressed="false">Lyd av</button>
+      <button class="btn" id="btnFound" type="button">Funnet</button>
+      <button class="btn" id="btnStop" type="button">Stopp</button>
+    </div>
+  </div>
+</section>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+<script>
+(function(){
+'use strict';
+
+/* ---------- Oppsett ---------- */
+const STORE_KEY = 'sokskart.v1';
+const PREF_KEY = 'sokskart.prefs.v1';
+const MARK_MS = 5000;          // snittmåling per hotspot
+const STALE_MS = 10000;        // posisjon eldre enn dette regnes som gammel
+const START_VIEW = [59.2096, 9.6090]; // Skien
+
+const $ = s => document.querySelector(s);
+const R = 6371008.8;
+const toRad = d => d * Math.PI / 180;
+const toDeg = r => r * 180 / Math.PI;
+
+/* Avstand (haversine, meter) og kurs (grader fra nord) */
+function distance(a, b){
+  const dLat = toRad(b.lat - a.lat), dLng = toRad(b.lng - a.lng);
+  const s = Math.sin(dLat/2)**2 + Math.cos(toRad(a.lat)) * Math.cos(toRad(b.lat)) * Math.sin(dLng/2)**2;
+  return 2 * R * Math.asin(Math.min(1, Math.sqrt(s)));
+}
+function bearing(a, b){
+  const p1 = toRad(a.lat), p2 = toRad(b.lat), dl = toRad(b.lng - a.lng);
+  const y = Math.sin(dl) * Math.cos(p2);
+  const x = Math.cos(p1) * Math.sin(p2) - Math.sin(p1) * Math.cos(p2) * Math.cos(dl);
+  return (toDeg(Math.atan2(y, x)) + 360) % 360;
+}
+const nf0 = new Intl.NumberFormat('nb-NO', {maximumFractionDigits:0});
+const nf1 = new Intl.NumberFormat('nb-NO', {minimumFractionDigits:1, maximumFractionDigits:1});
+const nf2 = new Intl.NumberFormat('nb-NO', {minimumFractionDigits:2, maximumFractionDigits:2});
+function fmtDist(m){
+  if (m < 10) return nf1.format(m) + ' m';
+  if (m < 1000) return nf0.format(m) + ' m';
+  return nf1.format(m / 1000) + ' km';
+}
+function fmtAcc(m){
+  if (m == null) return 'satt på kart';
+  return '±' + (m < 1 ? nf2.format(m) : nf1.format(m)) + ' m';
+}
+const DIRS = ['N','NØ','Ø','SØ','S','SV','V','NV'];
+const dirName = deg => DIRS[Math.round(deg / 45) % 8];
+const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+
+/* Varm/kald-trinn */
+const LEVELS = [
+  {max:1,        word:'Brennhett', color:'#D7263D', ink:'#FFFFFF'},
+  {max:3,        word:'Het',       color:'#F25C05', ink:'#FFFFFF'},
+  {max:8,        word:'Varm',      color:'#F5A300', ink:'#231500'},
+  {max:20,       word:'Lunken',    color:'#9BBF3B', ink:'#152300'},
+  {max:50,       word:'Kald',      color:'#3A9BC9', ink:'#04202E'},
+  {max:Infinity, word:'Iskald',    color:'#2F5FA8', ink:'#FFFFFF'}
+];
+const heatLevel = d => LEVELS.find(l => d <= l.max);
+/* 0 = 100 m eller mer, 1 = 0,5 m eller mindre (logaritmisk) */
+const heatK = d => clamp(1 - Math.log(Math.max(d, .5) / .5) / Math.log(100 / .5), 0, 1);
+
+/* ---------- Tilstand ---------- */
+const state = {
+  hotspots: [], nextN: 1,
+  pos: null,               // {lat,lng,acc,heading,speed,at}
+  follow: true,
+  layerIdx: 0,
+  targetId: null, autoNearest: false, finderOpen: false,
+  metric: null,
+  compass: null, compassAt: 0,
+  sound: false,
+  marking: null,
+  demo: false, demoPos: null
+};
+
+function load(){
+  try{
+    const raw = localStorage.getItem(STORE_KEY);
+    if (raw){
+      const d = JSON.parse(raw);
+      if (Array.isArray(d.hotspots)) state.hotspots = d.hotspots.filter(h => h && isFinite(h.lat) && isFinite(h.lng));
+      state.nextN = Number(d.nextN) || state.hotspots.reduce((m, h) => Math.max(m, h.n || 0), 0) + 1;
+    }
+  }catch(e){}
+  try{
+    const p = JSON.parse(localStorage.getItem(PREF_KEY) || '{}');
+    if (Number.isInteger(p.layerIdx)) state.layerIdx = p.layerIdx;
+  }catch(e){}
+}
+function save(){
+  try{ localStorage.setItem(STORE_KEY, JSON.stringify({hotspots: state.hotspots, nextN: state.nextN})); }catch(e){}
+}
+function savePrefs(){
+  try{ localStorage.setItem(PREF_KEY, JSON.stringify({layerIdx: state.layerIdx})); }catch(e){}
+}
+
+/* ---------- Toast ---------- */
+let toastTimer = null;
+function toast(msg){
+  const el = $('#toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 3200);
+}
+
+/* ---------- Kart ---------- */
+const kvAttr = '© <a href="https://www.kartverket.no/">Kartverket</a>';
+const LAYERS = [
+  {name:'Topo', layer: L.tileLayer('https://cache.kartverket.no/v1/wmts/1.0.0/topo/default/webmercator/{z}/{y}/{x}.png', {maxNativeZoom:18, maxZoom:22, attribution:kvAttr})},
+  {name:'Gråtone', layer: L.tileLayer('https://cache.kartverket.no/v1/wmts/1.0.0/topograatone/default/webmercator/{z}/{y}/{x}.png', {maxNativeZoom:18, maxZoom:22, attribution:kvAttr})},
+  {name:'Flyfoto', layer: L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {maxNativeZoom:19, maxZoom:22, attribution:'Flyfoto © Esri, Maxar, Earthstar Geographics'})}
+];
+
+load();
+if (state.layerIdx < 0 || state.layerIdx >= LAYERS.length) state.layerIdx = 0;
+
+const map = L.map('map', {zoomControl:true, maxZoom:22}).setView(START_VIEW, 13);
+map.attributionControl.setPrefix('<a href="https://leafletjs.com">Leaflet</a>');
+L.control.scale({imperial:false, position:'bottomleft', maxWidth:120}).addTo(map);
+LAYERS[state.layerIdx].layer.addTo(map);
+$('#btnLayer').textContent = LAYERS[state.layerIdx].name;
+
+const meIcon = L.divIcon({className:'me-wrap', html:'<div class="me"><div class="me-head" hidden></div><div class="me-dot"></div></div>', iconSize:[28,28], iconAnchor:[14,14]});
+const meMarker = L.marker(START_VIEW, {icon:meIcon, interactive:false, keyboard:false, zIndexOffset:1000});
+const accCircle = L.circle(START_VIEW, {radius:1, className:'acc-circle', interactive:false});
+const aimLine = L.polyline([], {className:'aim-line', interactive:false});
+const markers = new Map();
+
+function hsIcon(h){
+  const cls = ['hs'];
+  if (h.found) cls.push('found');
+  if (h.source === 'kart') cls.push('manual');
+  if (state.finderOpen && h.id === state.targetId) cls.push('target');
+  return L.divIcon({className:'hs-wrap', html:'<div class="' + cls.join(' ') + '">' + h.n + '</div>', iconSize:[30,30], iconAnchor:[15,15]});
+}
+function renderMarkers(){
+  const ids = new Set(state.hotspots.map(h => h.id));
+  for (const [id, m] of markers){ if (!ids.has(id)){ m.remove(); markers.delete(id); } }
+  for (const h of state.hotspots){
+    let m = markers.get(h.id);
+    if (!m){
+      m = L.marker([h.lat, h.lng], {icon:hsIcon(h), title:h.name, keyboard:true});
+      m.on('click', () => openFinder(h.id));
+      m.addTo(map);
+      markers.set(h.id, m);
+    } else {
+      m.setLatLng([h.lat, h.lng]);
+      m.setIcon(hsIcon(h));
+    }
+  }
+}
+
+map.on('dragstart', () => setFollow(false));
+map.on('contextmenu', e => {
+  const h = addHotspot(e.latlng.lat, e.latlng.lng, null, 'kart');
+  toast(h.name + ' satt fra kartet');
+});
+
+function setFollow(on){
+  state.follow = on;
+  $('#btnFollow').setAttribute('aria-pressed', String(on));
+  if (on && state.pos) map.panTo([state.pos.lat, state.pos.lng]);
+}
+$('#btnFollow').addEventListener('click', () => setFollow(!state.follow));
+$('#btnLayer').addEventListener('click', () => {
+  map.removeLayer(LAYERS[state.layerIdx].layer);
+  state.layerIdx = (state.layerIdx + 1) % LAYERS.length;
+  LAYERS[state.layerIdx].layer.addTo(map);
+  $('#btnLayer').textContent = LAYERS[state.layerIdx].name;
+  savePrefs();
+});
+
+/* ---------- GPS ---------- */
+function updateGpsChip(){
+  const chip = $('#gpsChip'), txt = $('#gpsText');
+  if (state.demo){ chip.dataset.q = 'demo'; txt.textContent = 'Demo · trykk på kartet for å gå'; return; }
+  const p = state.pos;
+  if (!p) return;
+  if (Date.now() - p.at > STALE_MS){
+    chip.dataset.q = 'poor';
+    txt.textContent = 'Ingen ny posisjon på ' + Math.round((Date.now() - p.at) / 1000) + ' s';
+    return;
+  }
+  if (p.acc <= 0.5){ chip.dataset.q = 'good'; txt.textContent = fmtAcc(p.acc) + ' · RTK'; }
+  else if (p.acc <= 2){ chip.dataset.q = 'mid'; txt.textContent = fmtAcc(p.acc) + ' · middels'; }
+  else { chip.dataset.q = 'poor'; txt.textContent = fmtAcc(p.acc) + ' · mobil-GPS'; }
+}
+function gpsError(msg){
+  $('#gpsChip').dataset.q = 'error';
+  $('#gpsText').textContent = msg;
+}
+function onPosition(p){
+  const c = p.coords;
+  const moving = c.speed != null && c.speed > 0.6 && c.heading != null && !isNaN(c.heading);
+  const pos = {lat:c.latitude, lng:c.longitude, acc:c.accuracy, heading: moving ? c.heading : null, speed:c.speed, at:Date.now()};
+  const first = !state.pos;
+  state.pos = pos;
+  if (state.marking) state.marking.samples.push(pos);
+
+  meMarker.setLatLng([pos.lat, pos.lng]);
+  accCircle.setLatLng([pos.lat, pos.lng]).setRadius(Math.max(pos.acc, 0.05));
+  if (first){
+    accCircle.addTo(map); meMarker.addTo(map);
+    map.setView([pos.lat, pos.lng], 19);
+  } else if (state.follow){
+    map.panTo([pos.lat, pos.lng], {animate:true, duration:.4});
+  }
+  updateGpsChip();
+  renderHeading();
+  updateMetric();
+  renderFinder();
+  updateListMeta();
+}
+function onGeoError(err){
+  if (state.demo) return;
+  if (err.code === 1){ gpsError('GPS-tilgang avslått – tillat posisjon for siden'); autoDemo('GPS er ikke tilgjengelig her'); }
+  else if (err.code === 2) gpsError('Finner ikke posisjon – gå ut i åpent terreng');
+  else if (!state.pos) gpsError('Venter fortsatt på GPS …');
+}
+function startGps(){
+  if (!('geolocation' in navigator)){ gpsError('Nettleseren har ikke GPS-støtte'); autoDemo('Nettleseren har ikke GPS'); return; }
+  if (!window.isSecureContext){ gpsError('GPS krever at siden åpnes via https'); autoDemo('GPS krever https'); return; }
+  navigator.geolocation.watchPosition(p => { if (!state.demo) onPosition(p); }, onGeoError, {enableHighAccuracy:true, maximumAge:0, timeout:30000});
+  setTimeout(() => { if (!state.pos && !state.demo) autoDemo('Fikk ingen GPS-posisjon'); }, 15000);
+}
+
+/* ---------- Demo: test uten GPS ---------- */
+// Trykk på kartet for å flytte deg. Posisjonen sendes hvert sekund, som fra en ekte mottaker.
+let demoTimer = null;
+function demoEmit(){
+  if (!state.demo || !state.demoPos) return;
+  onPosition({coords:{latitude:state.demoPos.lat, longitude:state.demoPos.lng, accuracy:0.05, speed:null, heading:null}, timestamp:Date.now()});
+}
+function setDemo(on){
+  state.demo = on;
+  $('#btnDemo').setAttribute('aria-pressed', String(on));
+  clearInterval(demoTimer); demoTimer = null;
+  if (on){
+    const c = state.pos ? L.latLng(state.pos.lat, state.pos.lng) : map.getCenter();
+    state.demoPos = {lat:c.lat, lng:c.lng};
+    setFollow(false);
+    if (map.getZoom() < 18) map.setView(c, 19);
+    demoEmit();
+    demoTimer = setInterval(demoEmit, 1000);
+  } else {
+    state.pos = null;
+    state.metric = null;
+    meMarker.remove(); accCircle.remove(); aimLine.remove();
+    $('#gpsChip').dataset.q = 'none'; $('#gpsText').textContent = 'Venter på GPS …';
+    renderFinder();
+  }
+  updateGpsChip();
+}
+function autoDemo(reason){
+  if (state.demo) return;
+  setDemo(true);
+  toast(reason + ' – demo er slått på. Trykk på kartet for å flytte deg.');
+}
+$('#btnDemo').addEventListener('click', () => setDemo(!state.demo));
+map.on('click', e => {
+  if (!state.demo) return;
+  state.demoPos = {lat:e.latlng.lat, lng:e.latlng.lng};
+  demoEmit();
+});
+setInterval(updateGpsChip, 2000);
+
+/* ---------- Kompass ---------- */
+let rafPending = false;
+function onOrient(e){
+  let h = null;
+  if (typeof e.webkitCompassHeading === 'number') h = e.webkitCompassHeading;
+  else if (e.absolute && e.alpha != null) h = 360 - e.alpha;
+  if (h == null || isNaN(h)) return;
+  const so = (screen.orientation && screen.orientation.angle) || window.orientation || 0;
+  h = (h + so + 360) % 360;
+  if (state.compass == null) state.compass = h;
+  else {
+    const diff = ((h - state.compass + 540) % 360) - 180;
+    state.compass = (state.compass + diff * 0.3 + 360) % 360;
+  }
+  state.compassAt = Date.now();
+  if (!rafPending){
+    rafPending = true;
+    requestAnimationFrame(() => { rafPending = false; renderFinder(); renderHeading(); });
+  }
+}
+if ('ondeviceorientationabsolute' in window) window.addEventListener('deviceorientationabsolute', onOrient);
+else window.addEventListener('deviceorientation', onOrient);
+
+function currentHeading(){
+  if (state.compass != null && Date.now() - state.compassAt < 3000) return {deg:state.compass, src:'kompass'};
+  if (state.pos && state.pos.heading != null) return {deg:state.pos.heading, src:'gps'};
+  return null;
+}
+function renderHeading(){
+  const el = document.querySelector('.me-head');
+  if (!el) return;
+  const hd = currentHeading();
+  el.hidden = !hd;
+  if (hd) el.style.transform = 'rotate(' + hd.deg + 'deg)';
+}
+
+/* Første trykk: be om kompass (iPhone), hold skjermen våken */
+let unlocked = false;
+async function unlockOnce(){
+  if (unlocked) return;
+  unlocked = true;
+  try{
+    if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function'){
+      await DeviceOrientationEvent.requestPermission();
+    }
+  }catch(e){}
+  keepAwake();
+}
+document.addEventListener('pointerdown', unlockOnce, {once:false, passive:true});
+
+let wakeLock = null;
+async function keepAwake(){
+  try{
+    if ('wakeLock' in navigator && !wakeLock){
+      wakeLock = await navigator.wakeLock.request('screen');
+      wakeLock.addEventListener('release', () => { wakeLock = null; });
+    }
+  }catch(e){}
+}
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && unlocked) keepAwake(); });
+
+/* ---------- Hotspots ---------- */
+function newId(){ return 'h' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
+function addHotspot(lat, lng, acc, source){
+  const n = state.nextN++;
+  const h = {id:newId(), n, name:'Hotspot ' + n, lat, lng, acc, source, found:false, t:new Date().toISOString()};
+  state.hotspots.push(h);
+  save(); renderMarkers(); renderList();
+  return h;
+}
+function getHotspot(id){ return state.hotspots.find(h => h.id === id) || null; }
+
+/* Merk her: snittmåling over 5 sekunder, vektet etter oppgitt nøyaktighet */
+$('#btnMark').addEventListener('click', () => {
+  if (state.marking) return;
+  if (!state.pos || Date.now() - state.pos.at > STALE_MS){
+    toast('Venter på GPS-posisjon – prøv igjen om litt');
+    return;
+  }
+  const btn = $('#btnMark');
+  state.marking = {samples:[state.pos], end:Date.now() + MARK_MS};
+  btn.disabled = true;
+  const tick = setInterval(() => {
+    const left = state.marking.end - Date.now();
+    btn.style.setProperty('--p', String(clamp(1 - left / MARK_MS, 0, 1)));
+    $('#markLabel').textContent = 'Måler … ' + Math.max(1, Math.ceil(left / 1000)) + ' s';
+    if (left <= 0){
+      clearInterval(tick);
+      finishMark();
+    }
+  }, 200);
+});
+function finishMark(){
+  const s = state.marking.samples;
+  state.marking = null;
+  const btn = $('#btnMark');
+  btn.disabled = false;
+  btn.style.setProperty('--p', '0');
+  $('#markLabel').textContent = 'Merk hotspot her';
+  let wSum = 0, lat = 0, lng = 0;
+  for (const p of s){
+    const w = 1 / Math.max(p.acc, 0.01) ** 2;
+    wSum += w; lat += p.lat * w; lng += p.lng * w;
+  }
+  lat /= wSum; lng /= wSum;
+  const accs = s.map(p => p.acc).sort((a, b) => a - b);
+  const acc = accs[Math.floor(accs.length / 2)];
+  const h = addHotspot(lat, lng, acc, 'gps');
+  toast(h.name + ' lagret · ' + fmtAcc(acc) + ' · ' + s.length + (s.length === 1 ? ' måling' : ' målinger'));
+}
+
+/* ---------- Liste ---------- */
+$('#btnList').addEventListener('click', () => {
+  const panel = $('#listPanel');
+  panel.hidden = !panel.hidden;
+  $('#btnList').setAttribute('aria-expanded', String(!panel.hidden));
+  renderList();
+  requestAnimationFrame(() => map.invalidateSize());
+});
+function metaText(h){
+  const parts = [];
+  if (state.pos) parts.push(fmtDist(distance(state.pos, h)) + ' unna');
+  parts.push(fmtAcc(h.acc));
+  if (h.found) parts.push('funnet');
+  return parts.join(' · ');
+}
+function renderList(){
+  $('#count').textContent = String(state.hotspots.length);
+  $('#hint').hidden = state.hotspots.length > 0;
+  const ul = $('#list');
+  if ($('#listPanel').hidden) return;
+  ul.innerHTML = '';
+  if (!state.hotspots.length){
+    const li = document.createElement('li');
+    li.className = 'row';
+    li.style.gridTemplateColumns = '1fr';
+    li.textContent = 'Ingen hotspots ennå.';
+    ul.appendChild(li);
+    return;
+  }
+  for (const h of state.hotspots){
+    const li = document.createElement('li');
+    li.className = 'row' + (h.found ? ' found' : '');
+    li.dataset.id = h.id;
+    const badge = document.createElement('span'); badge.className = 'badge'; badge.textContent = h.n;
+    const text = document.createElement('div'); text.className = 'row-text';
+    const name = document.createElement('button'); name.type = 'button'; name.className = 'row-name'; name.dataset.act = 'rename'; name.textContent = h.name; name.title = 'Gi nytt navn';
+    const meta = document.createElement('span'); meta.className = 'row-meta'; meta.textContent = metaText(h);
+    text.append(name, meta);
+    const find = document.createElement('button'); find.type = 'button'; find.className = 'find'; find.dataset.act = 'find'; find.textContent = 'Finn';
+    const del = document.createElement('button'); del.type = 'button'; del.className = 'del'; del.dataset.act = 'del'; del.setAttribute('aria-label', 'Slett ' + h.name);
+    del.innerHTML = '<svg width="12" height="12" viewBox="0 0 14 14" aria-hidden="true"><path d="M2 2l10 10M12 2L2 12" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" fill="none"/></svg>';
+    li.append(badge, text, find, del);
+    ul.appendChild(li);
+  }
+}
+function updateListMeta(){
+  if ($('#listPanel').hidden) return;
+  document.querySelectorAll('#list .row[data-id]').forEach(li => {
+    const h = getHotspot(li.dataset.id);
+    if (h) li.querySelector('.row-meta').textContent = metaText(h);
+  });
+}
+$('#list').addEventListener('click', e => {
+  const btn = e.target.closest('button[data-act]');
+  if (!btn) return;
+  const h = getHotspot(btn.closest('.row').dataset.id);
+  if (!h) return;
+  if (btn.dataset.act === 'find') openFinder(h.id);
+  else if (btn.dataset.act === 'rename'){
+    const v = prompt('Navn på hotspot', h.name);
+    if (v != null && v.trim()){ h.name = v.trim().slice(0, 60); save(); renderMarkers(); renderList(); renderFinder(); }
+  } else if (btn.dataset.act === 'del'){
+    if (confirm('Slette ' + h.name + '?')){
+      state.hotspots = state.hotspots.filter(x => x.id !== h.id);
+      if (state.targetId === h.id) state.targetId = null;
+      save(); renderMarkers(); renderList(); updateMetric(); renderFinder();
+    }
+  }
+});
+$('#btnClear').addEventListener('click', () => {
+  if (!state.hotspots.length) return;
+  if (confirm('Slette alle ' + state.hotspots.length + ' hotspots? Dette kan ikke angres.')){
+    state.hotspots = []; state.nextN = 1;
+    save(); renderMarkers(); renderList();
+    closeFinder();
+  }
+});
+$('#btnResetFound').addEventListener('click', () => {
+  state.hotspots.forEach(h => { h.found = false; });
+  save(); renderMarkers(); renderList();
+  toast('Alle hotspots er klare igjen');
+});
+
+/* Eksport / import (GeoJSON, WGS84) */
+$('#btnExport').addEventListener('click', () => {
+  if (!state.hotspots.length){ toast('Ingen hotspots å laste ned'); return; }
+  const fc = {
+    type:'FeatureCollection',
+    features: state.hotspots.map(h => ({
+      type:'Feature',
+      geometry:{type:'Point', coordinates:[+h.lng.toFixed(8), +h.lat.toFixed(8)]},
+      properties:{name:h.name, number:h.n, accuracy_m:h.acc, source:h.source, found:h.found, time:h.t}
+    }))
+  };
+  const blob = new Blob([JSON.stringify(fc, null, 2)], {type:'application/geo+json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'sokskart-' + new Date().toISOString().slice(0, 10) + '.geojson';
+  document.body.appendChild(a); a.click();
+  setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1500);
+});
+$('#btnImport').addEventListener('click', () => $('#fileInput').click());
+$('#fileInput').addEventListener('change', async e => {
+  const f = e.target.files && e.target.files[0];
+  e.target.value = '';
+  if (!f) return;
+  try{
+    const data = JSON.parse(await f.text());
+    const feats = data && data.type === 'FeatureCollection' ? data.features : [];
+    let added = 0;
+    for (const ft of feats){
+      if (!ft || !ft.geometry || ft.geometry.type !== 'Point') continue;
+      const [lng, lat] = ft.geometry.coordinates || [];
+      if (!isFinite(lat) || !isFinite(lng)) continue;
+      const p = ft.properties || {};
+      const n = state.nextN++;
+      state.hotspots.push({
+        id:newId(), n, name:String(p.name || ('Hotspot ' + n)).slice(0, 60), lat:+lat, lng:+lng,
+        acc: typeof p.accuracy_m === 'number' ? p.accuracy_m : null,
+        source: p.source === 'gps' || p.source === 'kart' ? p.source : 'import',
+        found: false, t: typeof p.time === 'string' ? p.time : new Date().toISOString()
+      });
+      added++;
+    }
+    save(); renderMarkers(); renderList();
+    toast(added ? added + ' hotspots importert' : 'Fant ingen punkter i fila');
+  }catch(err){
+    toast('Fila kunne ikke leses – bruk en .geojson lastet ned fra Søkskart');
+  }
+});
+
+/* ---------- Finn-modus (varm/kald) ---------- */
+function currentTarget(){
+  if (state.autoNearest && state.pos){
+    const open = state.hotspots.filter(h => !h.found);
+    if (!open.length){ state.targetId = null; return null; }
+    let best = null, bestD = Infinity;
+    for (const h of open){ const d = distance(state.pos, h); if (d < bestD){ best = h; bestD = d; } }
+    const cur = getHotspot(state.targetId);
+    // Bytt bare når en annen er tydelig nærmere, så målet ikke hopper frem og tilbake
+    if (!cur || cur.found || distance(state.pos, cur) - bestD > 1){
+      if (state.targetId !== best.id){ state.targetId = best.id; renderMarkers(); }
+    }
+  }
+  return getHotspot(state.targetId);
+}
+
+function updateMetric(){
+  const h = currentTarget();
+  if (!h || !state.pos){ state.metric = null; return; }
+  const d = distance(state.pos, h);
+  let m = state.metric;
+  if (!m || m.id !== h.id) m = {id:h.id, hist:[], dS:d, zone:null};
+  m.d = d;
+  m.dS = m.dS * 0.5 + d * 0.5;
+  const now = Date.now();
+  m.hist.push({t:now, d:m.dS});
+  while (m.hist.length && now - m.hist[0].t > 8000) m.hist.shift();
+  const old = m.hist.find(x => x.t >= now - 3000);
+  const thr = Math.max(0.25, state.pos.acc * 0.3);
+  m.trend = null;
+  if (old && now - old.t >= 1500){
+    const diff = m.dS - old.d;
+    m.trend = diff < -thr ? 'warmer' : diff > thr ? 'colder' : 'steady';
+  }
+  // Vibrer når du går inn i en nærmere sone
+  const zone = d <= 1 ? 2 : d <= 3 ? 1 : 0;
+  if (m.zone != null && zone > m.zone && state.finderOpen && navigator.vibrate){
+    navigator.vibrate(zone === 2 ? [250] : [70, 60, 70]);
+  }
+  m.zone = zone;
+  state.metric = m;
+}
+
+let arrowRot = 0;
+function setArrow(deg){
+  const cur = ((arrowRot % 360) + 360) % 360;
+  const diff = ((deg - cur + 540) % 360) - 180;
+  arrowRot += diff;
+  $('#arrow').style.transform = 'rotate(' + arrowRot + 'deg)';
+}
+
+function renderFinder(){
+  if (!state.finderOpen) return;
+  const fin = $('#finder');
+  const h = currentTarget();
+  const found = $('#btnFound');
+  if (!h){
+    $('#fName').textContent = state.autoNearest ? 'Alle hotspots er funnet' : 'Ingen hotspot valgt';
+    $('#fDist').textContent = '–'; $('#fHeat').textContent = 'Ferdig';
+    $('#fTrend').innerHTML = '&nbsp;'; $('#fBearing').innerHTML = '&nbsp;';
+    $('#fHint').textContent = state.autoNearest ? 'Trykk «Nullstill funnet» i lista for å starte på nytt.' : '';
+    fin.style.setProperty('--heat', 'var(--line)'); fin.style.setProperty('--heat-ink', 'var(--ink)');
+    $('#here').hidden = true; $('#arrow').hidden = true;
+    found.disabled = true;
+    aimLine.remove();
+    return;
+  }
+  found.disabled = false;
+  found.textContent = h.found ? 'Angre funnet' : 'Funnet';
+  $('#fName').textContent = h.name + (h.found ? ' · funnet' : '');
+  if (state.pos && (!state.metric || state.metric.id !== h.id)) updateMetric();
+  const m = state.metric;
+  if (!state.pos || !m || m.id !== h.id){
+    $('#fDist').textContent = '–'; $('#fHeat').textContent = 'Venter på GPS';
+    $('#fTrend').innerHTML = '&nbsp;'; $('#fBearing').innerHTML = '&nbsp;';
+    $('#fHint').textContent = '';
+    return;
+  }
+  const lvl = heatLevel(m.d);
+  fin.style.setProperty('--heat', lvl.color);
+  fin.style.setProperty('--heat-ink', lvl.ink);
+  fin.style.setProperty('--k', heatK(m.d).toFixed(3));
+  $('#fDist').textContent = fmtDist(m.d);
+  $('#fHeat').textContent = lvl.word;
+
+  const tr = $('#fTrend');
+  tr.dataset.t = m.trend || '';
+  tr.textContent = m.trend === 'warmer' ? '▲ Varmere' : m.trend === 'colder' ? '▼ Kaldere' : m.trend === 'steady' ? 'Uendret' : '\u00a0';
+
+  const b = bearing(state.pos, h);
+  const within = m.d <= Math.max(0.8, state.pos.acc);
+  const hd = currentHeading();
+  $('#here').hidden = !within;
+  $('#arrow').hidden = within;
+  if (within){
+    $('#here').textContent = state.pos.acc <= 0.5 ? 'Du er her' : 'Innenfor usikkerheten';
+    $('#fBearing').textContent = 'Retning ' + dirName(b) + ' · ' + Math.round(b) + '°';
+    $('#fHint').textContent = state.pos.acc <= 0.5
+      ? 'Du står på punktet.'
+      : 'Avstanden er mindre enn GPS-usikkerheten (' + fmtAcc(state.pos.acc) + '), så retningen er ikke til å stole på her.';
+  } else {
+    setArrow(hd ? b - hd.deg : b);
+    $('#fBearing').textContent = 'Retning ' + dirName(b) + ' · ' + Math.round(b) + '°';
+    $('#fHint').textContent = !hd
+      ? 'Uten kompass: pila regner nord som opp.'
+      : hd.src === 'kompass' ? 'Hold telefonen flatt – pila peker dit du skal.' : 'Retning beregnet fra ganglinja di.';
+  }
+  aimLine.setLatLngs([[state.pos.lat, state.pos.lng], [h.lat, h.lng]]);
+  if (!map.hasLayer(aimLine)) aimLine.addTo(map);
+}
+
+function openFinder(id){
+  state.targetId = id;
+  state.autoNearest = false;
+  $('#btnNearest').setAttribute('aria-pressed', 'false');
+  state.finderOpen = true;
+  state.metric = null;
+  $('#mainView').hidden = true;
+  $('#finder').hidden = false;
+  renderMarkers();
+  updateMetric();
+  renderFinder();
+  requestAnimationFrame(() => map.invalidateSize());
+}
+function closeFinder(){
+  state.finderOpen = false;
+  state.targetId = null;
+  state.autoNearest = false;
+  state.metric = null;
+  setSound(false);
+  aimLine.remove();
+  $('#finder').hidden = true;
+  $('#mainView').hidden = false;
+  renderMarkers(); renderList();
+  requestAnimationFrame(() => map.invalidateSize());
+}
+$('#btnStop').addEventListener('click', closeFinder);
+$('#btnCloseFinder').addEventListener('click', closeFinder);
+$('#btnNearest').addEventListener('click', () => {
+  state.autoNearest = !state.autoNearest;
+  $('#btnNearest').setAttribute('aria-pressed', String(state.autoNearest));
+  if (state.autoNearest && !state.pos) toast('Venter på GPS før nærmeste kan velges');
+  updateMetric(); renderMarkers(); renderFinder();
+});
+$('#btnFound').addEventListener('click', () => {
+  const h = getHotspot(state.targetId);
+  if (!h) return;
+  h.found = !h.found;
+  save();
+  if (h.found) toast(h.name + ' markert som funnet');
+  if (h.found && state.autoNearest){ state.metric = null; }
+  updateMetric(); renderMarkers(); renderList(); renderFinder();
+});
+
+/* ---------- Lyd: pip som går fortere jo nærmere du er ---------- */
+let audioCtx = null, soundTimer = null;
+function beep(freq){
+  const t = audioCtx.currentTime;
+  const o = audioCtx.createOscillator(), g = audioCtx.createGain();
+  o.type = 'sine'; o.frequency.value = freq;
+  g.gain.setValueAtTime(0.0001, t);
+  g.gain.exponentialRampToValueAtTime(0.3, t + 0.01);
+  g.gain.exponentialRampToValueAtTime(0.0001, t + 0.09);
+  o.connect(g); g.connect(audioCtx.destination);
+  o.start(t); o.stop(t + 0.1);
+}
+function soundLoop(){
+  soundTimer = null;
+  if (!state.sound || !state.finderOpen) return;
+  const m = state.metric;
+  if (m && state.pos && Date.now() - state.pos.at < STALE_MS){
+    const norm = Math.min(1, Math.log10(1 + m.dS) / Math.log10(61));
+    beep(1150 - 600 * norm);
+    soundTimer = setTimeout(soundLoop, 110 + 1400 * norm);
+  } else {
+    soundTimer = setTimeout(soundLoop, 1000);
+  }
+}
+function setSound(on){
+  state.sound = on;
+  const b = $('#btnSound');
+  b.setAttribute('aria-pressed', String(on));
+  b.textContent = on ? 'Lyd på' : 'Lyd av';
+  if (on){
+    try{
+      audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+    }catch(e){ toast('Lyd støttes ikke i denne nettleseren'); state.sound = false; return; }
+    if (!soundTimer) soundLoop();
+  } else if (soundTimer){
+    clearTimeout(soundTimer); soundTimer = null;
+  }
+}
+$('#btnSound').addEventListener('click', () => setSound(!state.sound));
+
+/* ---------- Start ---------- */
+renderMarkers();
+renderList();
+if (/[?&]demo\b/.test(location.search)) setDemo(true);
+startGps();
+
+})();
+</script>
+</body>
+</html>
