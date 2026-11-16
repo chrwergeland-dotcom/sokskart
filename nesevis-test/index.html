@@ -312,6 +312,16 @@ html[data-motion="off"] *,html[data-motion="off"] *::before,html[data-motion="of
 .tbtn{flex:none;min-height:40px;padding:0 .7rem;border:1.5px solid var(--hl);border-radius:10px;background:none;font-size:.8rem;font-weight:600;white-space:nowrap}
 .inst{background:var(--soft);margin:0 -20px .4rem;padding:.9rem 20px;display:grid;gap:.5rem}
 
+/* Klikker */
+.tbtn.ic{display:inline-flex;align-items:center;justify-content:center;min-width:40px;padding:0 .5rem}
+.clk{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.35rem;width:min(64vw,15rem);aspect-ratio:1;margin:1.1rem auto 1.3rem;border:0;border-radius:50%;background:var(--ac);color:var(--on);font:inherit;font-weight:600;font-size:1.05rem;touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
+.clk b{font-weight:500;font-size:.9rem;opacity:.75;font-variant-numeric:tabular-nums}
+.clk.hit{animation:clkp .16s ease-out}
+@keyframes clkp{0%{transform:scale(.94)}100%{transform:scale(1)}}
+@media (prefers-reduced-motion:reduce){.clk.hit{animation:none}}
+[data-motion="off"] .clk.hit{animation:none}
+@media (max-height:480px){.clk{width:min(40vh,11rem)}}
+
 </style>
 </head>
 <body>
