@@ -379,6 +379,33 @@ ol.steps.c li>span{padding-top:.3rem;font-size:1.05rem}
 .dg.c{background:var(--soft);background:color-mix(in srgb,var(--sc) 24%,var(--bg))}
 .prog .num{font-size:1.25rem;margin-top:.35rem}
 
+/* Tren sammen */
+.gpl{list-style:none;margin:.4rem 0 0;padding:0}
+.gpl li{display:flex;align-items:center;justify-content:space-between;gap:.6rem;min-height:56px;border-bottom:1px solid var(--ln)}
+.gpl li>span:first-child{display:flex;flex-direction:column;min-width:0}.gpl small{color:var(--mu);font-size:.8rem}
+.gpl.run{display:flex;gap:.4rem;overflow-x:auto;margin-top:1rem;scrollbar-width:none}.gpl.run::-webkit-scrollbar{display:none}
+.gpl.run li{border:0;min-height:0;flex:none}
+.gpl.run button{display:flex;flex-direction:column;align-items:flex-start;min-height:48px;min-width:4.6rem;padding:.35rem .7rem;border:1.5px solid var(--ln);border-radius:10px;background:none;text-align:left}
+.gpl.run button.on{border-color:var(--tx);background:var(--soft)}
+.gnow{margin-top:.8rem}.gnow .h1{font-size:1.7rem}
+.clk.gk{width:min(40vw,9rem);margin:1rem auto;font-size:.9rem}
+.resg{display:grid;gap:.5rem}
+.btn.sm{min-height:40px;padding:0 .8rem;font-size:.85rem;width:auto;flex:none}
+.lk{background:none;border:0;padding:.2rem 0;font:inherit;font-weight:600;text-decoration:underline;text-underline-offset:3px;min-height:36px}
+select{width:100%;min-height:52px;margin-top:.35rem;border:1.5px solid var(--hl);border-radius:10px;background:var(--bg);color:var(--tx);font:inherit;padding:0 .7rem}
+textarea#g-code,textarea#g-out{width:100%;margin-top:.35rem;border:1.5px solid var(--hl);border-radius:10px;background:var(--bg);color:var(--tx);font:inherit;font-size:.85rem;padding:.6rem .7rem}
+
+/* Ryddigere forside: mindre tekst, mer å se på */
+ol.steps li.goal>b{background:none;color:var(--tx);border:2px solid var(--tx)}
+ol.steps:not(.c) li.goal>b{border:0}
+.pills{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:1.1rem}
+.pill{min-height:44px;padding:0 1rem;border:1.5px solid var(--hl);border-radius:999px;background:none;font:inherit;font-weight:600;font-size:.9rem}
+.pill.on{background:var(--tx);color:var(--bg);border-color:var(--tx)}
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:.6rem}
+.tile{display:flex;flex-direction:column;align-items:flex-start;justify-content:space-between;gap:.9rem;min-height:92px;padding:.85rem .9rem;border:0;border-radius:16px;background:var(--soft);color:var(--tx);font:inherit;text-align:left}
+.tile b{font-weight:600;font-size:.95rem;line-height:1.2}
+.prog .mks{margin-top:.9rem}
+
 </style>
 </head>
 <body>
