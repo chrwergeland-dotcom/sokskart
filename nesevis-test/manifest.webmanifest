@@ -1,8 +1,8 @@
 {
  "id": "./",
  "lang": "nb",
- "name": "Nesevis test",
- "short_name": "Nesevis",
+ "name": "Zniff test",
+ "short_name": "Zniff",
  "description": "Step-by-step scent detection training for dogs, with session log and reliability report.",
  "start_url": "./",
  "scope": "./",
