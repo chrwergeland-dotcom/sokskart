@@ -20,7 +20,7 @@
 <link rel="preload" as="font" type="font/woff2" crossorigin href="fonts/schibsted-grotesk-latin-400-normal.woff2">
 <link rel="preload" as="font" type="font/woff2" crossorigin href="fonts/schibsted-grotesk-latin-700-normal.woff2">
 <style>
-@font-face{font-family:"Schibsted Grotesk";font-style:normal;font-weight:400;font-display:swap;src:url(fonts/schibsted-grotesk-latin-400-normal.woff2) format("woff2")}@font-face{font-family:"Schibsted Grotesk";font-style:normal;font-weight:500;font-display:swap;src:url(fonts/schibsted-grotesk-latin-500-normal.woff2) format("woff2")}@font-face{font-family:"Schibsted Grotesk";font-style:normal;font-weight:600;font-display:swap;src:url(fonts/schibsted-grotesk-latin-600-normal.woff2) format("woff2")}@font-face{font-family:"Schibsted Grotesk";font-style:normal;font-weight:700;font-display:swap;src:url(fonts/schibsted-grotesk-latin-700-normal.woff2) format("woff2")}
+@font-face{font-family:"Schibsted Grotesk";font-style:normal;font-weight:400;font-display:swap;src:url(fonts/schibsted-grotesk-latin-400-normal.woff2) format("woff2")}@font-face{font-family:"Schibsted Grotesk";font-style:normal;font-weight:500;font-display:swap;src:url(fonts/schibsted-grotesk-latin-500-normal.woff2) format("woff2")}@font-face{font-family:"Schibsted Grotesk";font-style:normal;font-weight:600;font-display:swap;src:url(fonts/schibsted-grotesk-latin-600-normal.woff2) format("woff2")}@font-face{font-family:"Schibsted Grotesk";font-style:normal;font-weight:700;font-display:swap;src:url(fonts/schibsted-grotesk-latin-700-normal.woff2) format("woff2")}@font-face{font-family:"Schibsted Grotesk";font-style:italic;font-weight:900;font-display:swap;src:url(fonts/schibsted-grotesk-latin-900-italic.woff2) format("woff2")}
 :root{--bg:#FFFFFF;--tx:#0B0C0E;--mu:#53575E;--hl:#868B94;--ln:#E2E4E8;--soft:#F1F2F4;--ac:#D2F03A;--on:#0B0C0E;--err:#A8281C;
  --font:"Schibsted Grotesk",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;--ease:cubic-bezier(.2,.8,.2,1);color-scheme:light}
 :root[data-pal="tjeneste"]{--ac:#17336F;--on:#FFFFFF}
@@ -545,6 +545,45 @@ html:root .emb{background:color-mix(in srgb,var(--sc,var(--ac)) 16%,transparent)
 .st:active{transform:scale(.92)}
 .scc{margin:-.2rem 1rem 1rem;font-size:.9rem;color:#1B1A17}
 .scc b{font-weight:700;margin-right:.3rem}
+/* ===================== Zniff 6: sporty. Svart, tung kursiv, hunden i bildet ===================== */
+html:root:not([data-theme="light"]){--bg:#0B0B0C;--card:#141416;--soft:#1E1E21;--ln:rgba(255,255,255,.13);--hl:#6E6E77;--tx:#FFFFFF;--mu:#A6A6B0;--ac:#D2F03A;--on:#0B0B0C;--err:#FFB4A8;--hi:transparent;color-scheme:dark;--mz-fg:#D2F03A;--mz-ft:#0B0B0C}
+html:root:not([data-theme="light"])[data-pal="tjeneste"]{--ac:#B9CCFF;--on:#0A1533}
+html:root:not([data-theme="light"])[data-pal="redning"]{--ac:#FF8A55;--on:#1C0A02}
+html:root[data-theme="light"]{--bg:#FFFFFF;--card:#F4F4F5;--soft:#E9E9EC;--hi:transparent}
+body{background:var(--bg)}
+.h1,.top h1,.big,.count,.count small,.num,.hst b,.stats b{font-style:italic;font-weight:900;letter-spacing:-.04em}
+.top h1{font-size:1.9rem;text-transform:uppercase}
+.big{text-transform:uppercase;font-size:3.3rem;line-height:.95}
+.count{font-size:5.2rem}
+.cta{border-radius:999px;font-style:italic;font-weight:900;font-size:1.15rem;text-transform:uppercase;min-height:60px;box-shadow:none}
+.cta small{font-style:normal;font-weight:600;text-transform:none;font-size:.78rem;letter-spacing:0}
+.btn{border-radius:999px;box-shadow:none}
+.row,.stg,.dg,.dg.c,.tile,.res{box-shadow:none;border-radius:14px}
+.res.hit{font-style:italic;font-weight:900;text-transform:uppercase;box-shadow:none}
+.row>h2,.sec{letter-spacing:.14em;font-weight:700}
+html:root:not([data-theme="light"]) .row>h2,html:root:not([data-theme="light"]) .sec{color:var(--ac)}
+.hero2{position:relative;margin:0 -20px;height:21rem;overflow:hidden;background:linear-gradient(160deg,color-mix(in srgb,var(--sc,#D2F03A) 34%,#20241c),#171c16 55%,#0B0B0C);display:flex;align-items:flex-end}
+.hero2::before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(115deg,rgba(255,255,255,.04) 0 2px,transparent 2px 26px)}
+.hero2.ph::before{display:none}
+.hero2 .hbg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 30%}
+.hero2 .hfade{position:absolute;left:0;right:0;bottom:0;height:72%;background:linear-gradient(180deg,transparent,rgba(11,11,12,.96) 90%)}
+.hero2 .htx{position:relative;padding:0 20px .7rem;min-width:0;flex:1}
+.hero2 .eb{margin:0;font-size:.75rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#D2F03A;opacity:1}
+.hero2 .h1{font-size:min(var(--fs,3.4rem),14vw);line-height:.92;text-transform:uppercase;margin-top:.45rem;color:#fff;overflow-wrap:break-word;hyphens:auto}
+.hcam{position:absolute;top:.8rem;right:20px;z-index:1;min-height:44px;padding:0 .8rem;border:1.5px dashed rgba(255,255,255,.6);border-radius:8px;background:rgba(0,0,0,.3);color:#fff;font:inherit;font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;display:grid;place-items:center}
+.hero2.ph .hcam{border:1px solid rgba(255,255,255,.4);width:44px;padding:0}
+.hcam svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8}
+.hst{display:flex;border-bottom:1px solid var(--ln)}
+.hero2+.hst{border-top:1px solid var(--ln)}
+html:root:not([data-theme="light"]) .hero2+.hst{border-top:0}
+.hst>div{flex:1;padding:.9rem 0 .75rem;min-width:0}
+.hst>div+div{border-left:1px solid var(--ln);padding-left:.9rem}
+.hst b{display:block;font-size:2.1rem;line-height:1;font-variant-numeric:tabular-nums}
+.hst span{display:block;margin-top:.4rem;font-size:.66rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--mu)}
+.narrow .hst{flex-direction:column}
+.narrow .hst>div+div{border-left:0;padding-left:0;border-top:1px solid var(--ln)}
+.prog .num{font-style:normal;font-weight:700;letter-spacing:-.025em}
+html:root .lvup b,html:root .lvup p{color:var(--tx)}
 
 </style>
 </head>
