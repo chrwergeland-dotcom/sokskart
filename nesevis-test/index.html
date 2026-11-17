@@ -431,6 +431,12 @@ button.hadd{background:none;color:inherit;font:inherit;font-size:.8rem;font-weig
 .foot>.pair:first-child{margin-bottom:.5rem}
 .cta:disabled,.btn:disabled{opacity:.4}
 
+/* Tren sammen: resultatknappene ligger i bunnfeltet, to i bredden også på smale skjermer */
+.foot .resg .pair{grid-template-columns:1fr 1fr}
+.narrow .foot .resg .pair{grid-template-columns:1fr}
+.foot .resg .res:not(.hit){min-height:60px}
+.gcall{margin:1rem 0}
+
 </style>
 </head>
 <body>
