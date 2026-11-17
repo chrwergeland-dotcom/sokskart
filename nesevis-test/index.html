@@ -322,6 +322,40 @@ html[data-motion="off"] *,html[data-motion="off"] *::before,html[data-motion="of
 [data-motion="off"] .clk.hit{animation:none}
 @media (max-height:480px){.clk{width:min(40vh,11rem)}}
 
+/* Hunden i sentrum, trinnfarger, sti og feiring */
+.hero{display:flex;align-items:center;gap:.9rem;background:var(--sc);color:#0B0C0E;border-radius:22px;padding:1rem 1rem 1rem .9rem;margin-top:.6rem;position:relative;overflow:hidden}
+.hero.pro{color:var(--tx);border-radius:14px}
+.hero .eb{margin:0;color:inherit;opacity:.72}.hero .h1{margin-top:.1rem;font-size:1.45rem}
+.hpr{font-size:.8rem;font-weight:500;opacity:.72;margin:.25rem 0 0}
+.htx{flex:1;min-width:0}
+.hav{position:relative;width:5.2rem;height:5.2rem;flex:none;display:grid;place-items:center}
+.hav svg{position:absolute;inset:0;width:100%;height:100%}
+.hav .tr{fill:none;stroke:currentColor;opacity:.18;stroke-width:5}.hav .pg{fill:none;stroke:currentColor;stroke-width:5;stroke-linecap:round}
+.hav img,.hav span{width:4.2rem;height:4.2rem;border-radius:50%;object-fit:cover;display:grid;place-items:center;background:rgba(255,255,255,.55);font-weight:700;font-size:1.5rem}
+.hero.pro .hav span{background:var(--bg)}
+.hadd{display:inline-flex;align-items:center;min-height:36px;margin-top:.4rem;padding:0 .7rem;border:1.5px solid currentColor;border-radius:10px;font-size:.8rem;font-weight:600;cursor:pointer}
+.hadd{position:relative;overflow:hidden}
+.hadd input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;font-size:0}
+.hadd:focus-within{outline:2px solid currentColor;outline-offset:2px}
+.emb{width:3.4rem;height:3.4rem;flex:none;opacity:.9}
+@media (max-width:350px){.emb{display:none}.hav{width:4.4rem;height:4.4rem}.hav img,.hav span{width:3.5rem;height:3.5rem}}
+.daily h2{font-size:.8rem;font-weight:600;color:var(--mu)}
+.trail{margin:.4rem -6px 0}.trail svg{display:block;width:100%;height:auto}
+.trail .ln{fill:none;stroke:var(--ln);stroke-width:4;stroke-linecap:round}
+.trail .nd{fill:var(--bg);stroke:var(--ln);stroke-width:2}.trail .nd.on{fill:var(--tx);stroke:var(--tx);stroke-width:1.500}
+.trail .me{fill:none;stroke:var(--tx);stroke-width:2.500}
+.trail .nt{font-size:11px;font-weight:700;fill:var(--mu);font-family:inherit}.trail .nt.on{fill:#0B0C0E}.trail .nt.on.pro{fill:var(--bg)}
+.stgh .no.c{background:var(--sc);color:#0B0C0E;border-radius:50%;width:1.8rem;height:1.8rem;display:grid;place-items:center;min-width:0}
+.burst{position:relative;height:0;pointer-events:none}
+.burst i{position:absolute;left:50%;top:64px;width:var(--w);height:var(--w);margin:calc(var(--w)/-2);border-radius:50%;background:var(--c);opacity:0;animation:bst .95s cubic-bezier(.15,.7,.3,1) calc(.2s + var(--t)) both}
+@keyframes bst{0%{opacity:1;transform:rotate(var(--a)) translateY(0) scale(.3)}65%{opacity:1}100%{opacity:0;transform:rotate(var(--a)) translateY(calc(-1*var(--d))) scale(1)}}
+@media (prefers-reduced-motion:reduce){.burst{display:none}}
+[data-motion="off"] .burst{display:none}
+.lvup.c{background:var(--sc);color:#0B0C0E;border:0;border-radius:18px;padding:1rem 1.1rem;margin-top:1rem}
+.lvup.c .rg,.lvup.c .ck{stroke:#0B0C0E}
+.lvup.c p,.lvup.c b{color:#0B0C0E}
+.burst i{top:92px}
+
 </style>
 </head>
 <body>
