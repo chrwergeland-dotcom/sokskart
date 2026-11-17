@@ -527,6 +527,24 @@ html:not(.narrow) .who .nm .mu{overflow:hidden;text-overflow:ellipsis;white-spac
 .lvup.c,.lvup.c p,.lvup b{color:var(--tx)}
 .lvup .rg,.lvup .ck{stroke:var(--sc,var(--ac))}
 html:root .emb{background:color-mix(in srgb,var(--sc,var(--ac)) 16%,transparent)}
+/* Veien: tegnede trinn */
+.sc{border-radius:22px;background:var(--pc);color:#1B1A17;margin-top:.8rem;overflow:hidden;scroll-margin-top:64px;--mz-fg:#0B0C0E;--mz-ft:#D2F03A}
+.sc .scn{display:block;width:100%;height:auto}
+.sct{display:flex;align-items:center;gap:.6rem;padding:.5rem 1rem 0}
+.scno{width:2rem;height:2rem;border-radius:50%;background:#1B1A17;color:var(--pc);display:grid;place-items:center;font-weight:700;flex:none;font-variant-numeric:tabular-nums}
+.sct h2{flex:1;font-size:1.3rem;font-weight:700;letter-spacing:-.03em;line-height:1.15;min-width:0}
+.sct .pr{font-weight:600;font-size:.85rem;color:#1B1A17}
+.stn{list-style:none;display:flex;gap:.4rem;padding:.9rem 1rem 1rem;margin:0;position:relative}
+.stn::before{content:"";position:absolute;left:12%;right:12%;top:calc(.9rem + 1.5rem - 1.5px);border-top:3px dashed rgba(27,26,23,.3)}
+.stn li{flex:1 1 0;display:flex;justify-content:center;position:relative}
+.stn li{min-width:0}
+.st{width:100%;max-width:3rem;aspect-ratio:1;height:auto;border-radius:50%;border:2px solid #1B1A17;background:rgba(255,255,255,.82);color:#1B1A17;font:inherit;font-weight:700;font-size:.8rem;display:grid;place-items:center;padding:0;transition:transform .22s var(--spring)}
+.st svg{width:1.3rem;height:1.3rem;fill:none;stroke:currentColor;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.st.ok{background:#1B1A17;color:var(--pc)}
+.st.cur{background:#D2F03A;box-shadow:0 0 0 5px rgba(27,26,23,.16)}
+.st:active{transform:scale(.92)}
+.scc{margin:-.2rem 1rem 1rem;font-size:.9rem;color:#1B1A17}
+.scc b{font-weight:700;margin-right:.3rem}
 
 </style>
 </head>
