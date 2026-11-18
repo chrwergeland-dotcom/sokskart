@@ -594,12 +594,13 @@ html:root .lvup b,html:root .lvup p{color:var(--tx)}
 .ser{display:flex;gap:.55rem;overflow-x:auto;scroll-snap-type:x mandatory;margin:1rem -20px 0;padding:0 20px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
 .ser::-webkit-scrollbar{display:none}
 .ser:focus-visible{outline:2px solid var(--ac);outline-offset:2px}
-.ser figure{flex:0 0 80%;max-width:340px;margin:0;scroll-snap-align:center;position:relative;border-radius:16px;overflow:hidden;aspect-ratio:4/5;background:#141416;border:1px solid var(--ln)}
-.ser img{width:100%;height:100%;object-fit:cover;display:block}
-.ser figcaption{position:absolute;left:0;right:0;bottom:0;padding:2.4rem .9rem .8rem;background:linear-gradient(transparent,rgba(0,0,0,.8));color:#fff;display:flex;align-items:baseline;gap:.55rem}
+.ser figure{flex:0 0 80%;max-width:340px;margin:0;scroll-snap-align:center;border-radius:16px;overflow:hidden;background:#141416;border:1px solid var(--ln);display:flex;flex-direction:column}
+.ser img{width:100%;height:auto;aspect-ratio:4/5;object-fit:cover;display:block}
+.ser figcaption{padding:.7rem .9rem .8rem;color:#fff;display:flex;align-items:baseline;gap:.55rem;flex:1}
 .ser figcaption b{font:italic 900 1.9rem/1 "Schibsted Grotesk",system-ui,sans-serif;color:#D2F03A}
 .ser figcaption span{font:italic 900 1.05rem/1.15 "Schibsted Grotesk",system-ui,sans-serif;text-transform:uppercase;letter-spacing:.02em}
 details.acc .ser{margin:0;padding:0}
+.ser figure:only-child{flex:0 0 100%;max-width:420px;margin:0 auto}
 
 </style>
 </head>
