@@ -11,7 +11,7 @@ const cfg={
   splashScreenFadeOutDuration:300,signingKey:{path:'./unused.keystore',alias:'zniff'},
   appVersionName:process.env.ZNIFF_VERSION||'1.0.0',appVersionCode:+(process.env.ZNIFF_CODE||1),appVersion:process.env.ZNIFF_VERSION||'1.0.0',
   shortcuts:[],generatorApp:'bubblewrap-core',fallbackType:'customtabs',enableSiteSettingsShortcut:true,isChromeOSOnly:false,isMetaQuest:false,
-  minSdkVersion:23,features:{playBilling:{enabled:true}},alphaDependencies:{enabled:true},additionalTrustedOrigins:[],retainedBundles:[]
+  minSdkVersion:24,features:{playBilling:{enabled:true}},alphaDependencies:{enabled:true},additionalTrustedOrigins:[],retainedBundles:[]
 };
 (async()=>{
   const out=path.resolve(process.argv[2]||'android');fs.mkdirSync(out,{recursive:true});
