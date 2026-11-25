@@ -1,0 +1,37 @@
+name: Zniff kvittering
+
+on:
+  schedule:
+    - cron: "17 * * * *"
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/zniff-kvittering.yml
+      - .github/zniff/kvitter.py
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: zniff-kvittering
+  cancel-in-progress: false
+
+jobs:
+  kvitter:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - id: auth
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: projects/112038170508/locations/global/workloadIdentityPools/github/providers/sokskart
+          service_account: zniff-kvittering@zniff-kvittering.iam.gserviceaccount.com
+          token_format: access_token
+          access_token_scopes: https://www.googleapis.com/auth/androidpublisher,https://www.googleapis.com/auth/spreadsheets.readonly
+      - name: Kvitter kjøp
+        env:
+          GTOKEN: ${{ steps.auth.outputs.access_token }}
+        run: python3 .github/zniff/kvitter.py
